@@ -63,7 +63,6 @@ describe('GET /api/articles/:article_id', () => {
         .get('/api/articles/1')
         .expect(200)
         .then((response) => {
-            console.log(response.body.article)
             expect(response.body.article.article_id).toBe(1);
             expect(response.body.article.topic).toBe('mitch');
             expect(response.body.article.author).toBe('butter_bridge');
@@ -77,10 +76,9 @@ describe('GET /api/articles/:article_id', () => {
     })
     test('GET:404 sends an appropriate status and error message when given a valid but non-existent id', () => {
         return request(app)
-          .get('/api/articles/')
+          .get('/api/articles/999')
           .expect(404)
           .then((response) => {
-            console.log(response)
             expect(response.body.msg).toBe("404: route not found");
           });
       });
@@ -92,8 +90,36 @@ describe('GET /api/articles/:article_id', () => {
             expect(response.body.msg).toBe('Bad request');
           });
       });
-
-
-
 })
+
+describe('GET /api/articles', () => {
+    test('200: responds with an array of article objects, listed by date in descending order, body property removed and a new comment_count property', () => {
+        return request(app)
+        .get('/api/articles')
+        .expect(200)
+        .then((response) => {
+        expect(response.body.articles).toHaveLength(13)
+        response.body.articles.forEach((article) => {
+            expect(typeof article.article_id).toBe("number")
+            expect(typeof article.author).toBe('string')
+            expect(typeof article.title).toBe('string')
+            expect(typeof article.topic).toBe('string')
+            expect(typeof article.created_at).toBe('string') 
+            expect(typeof article.votes).toBe('number')
+            expect(typeof article.article_img_url).toBe('string')
+            expect(typeof article.comment_count).toBe('string') 
+        })    
+
+        })
+})
+
+    test('404: route not found', () => {
+        return request(app)
+        .get('/api/nonsense')
+        .expect(404)
+        .then((response) => {
+            expect(response.body.msg).toBe("404: route not found")
+        })
+    })
+}); 
 
