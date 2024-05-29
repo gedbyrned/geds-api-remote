@@ -7,8 +7,6 @@ exports.selectTopics = () => {
     })
 };
 
-
-
 exports.selectArticleId = (article_id) => {
     return db.query(`SELECT * FROM articles WHERE article_id = $1;`, [article_id])
     .then((result) => {
@@ -17,13 +15,9 @@ exports.selectArticleId = (article_id) => {
             status: 404,
             msg: `404: route not found`,}
         )}
-
         return result.rows[0]
-    })
-    
+    })  
 }
-
-
 
 exports.selectArticles = () => {
     return db.query(`SELECT articles.author, articles.title, articles.article_id,  articles.topic, articles.created_at, articles.votes, articles.article_img_url,
@@ -35,3 +29,17 @@ exports.selectArticles = () => {
         return result.rows
     })
 };
+
+exports.selectCommentsById = () => {
+    return db.query(`SELECT * FROM comments;`)
+}
+
+exports.selectCommentsById = (article_id) => {
+    return db.query(`SELECT comment_id, votes, created_at, author, body, article_id FROM comments
+    WHERE article_id = $1 
+    ORDER BY created_at DESC`,
+    [article_id])
+    .then((result) => {
+        return result.rows;
+    })
+}
