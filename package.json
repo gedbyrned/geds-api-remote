@@ -7,7 +7,8 @@
     "setup-dbs": "psql -f ./db/setup.sql",
     "seed": "node ./db/seeds/run-seed.js",
     "test": "jest",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "playground": "psql -f psql-playground.sql > psql-text-playground.txt"
   },
   "repository": {
     "type": "git",
@@ -31,8 +32,7 @@
     "dotenv": "^16.0.0",
     "express": "^4.19.2",
     "pg": "^8.7.3",
-    "pg-database": "^2.1.19",
-    "psql": "^0.0.1"
+    "pg-database": "^2.1.19"
   },
   "jest": {
     "setupFilesAfterEnv": [
