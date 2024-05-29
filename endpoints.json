@@ -11,7 +11,7 @@
   },
   "GET /api/articles": {
     "description": "serves an array of all articles",
-    "queries": ["author", "topic", "sort_by", "order"],
+    "queries": ["author", "topic", "count", "sort_by", "order"],
     "exampleResponse": {
       "articles": [
         {
@@ -41,6 +41,22 @@
           "votes": 100,
           "article_img_url":
             "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+        }
+      ]
+    }
+  },
+  "GET /api/articles/:article_id/comment" :{
+    "description": "serves an array of comments for a chosen article id",
+    "queries": ["order"],
+    "exampleResponse": {
+      "comments": [
+        {
+          "comment_id": 3,
+          "votes": 100,
+          "created_at": "2020-03-01T01:13:00.000Z",
+          "author": "icellusedkars",
+          "body": "Replacing the quiet elegance of the dark suit and tie with the casual indifference of these muted earth tones is a form of fashion suicide, but, uh, call me crazy — onyou it works.'",
+          "article_id": 1
         }
       ]
     }

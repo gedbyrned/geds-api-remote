@@ -10,7 +10,8 @@ const app = require('../app');
 const db = require('../db/connection');
 const e = require('express')
 const { TestWatcher } = require('jest');
-const endpointsJSON = require('../endpoints.json')
+const endpointsJSON = require('../endpoints.json');
+const comments = require('../db/data/test-data/comments');
 
 
 afterAll(() => {
@@ -105,9 +106,11 @@ describe('GET /api/articles', () => {
             expect(typeof article.title).toBe('string')
             expect(typeof article.topic).toBe('string')
             expect(typeof article.created_at).toBe('string') 
+            // is string of a date
             expect(typeof article.votes).toBe('number')
             expect(typeof article.article_img_url).toBe('string')
             expect(typeof article.comment_count).toBe('string') 
+            // is string of a number
         })    
 
         })
@@ -123,3 +126,50 @@ describe('GET /api/articles', () => {
     })
 }); 
 
+describe('GET /api/articles/:article_id/comments', () => {
+    test('responds with an array of comments for a given article ID with the correct properties, with the most recent comment first', () => {
+        return request(app)
+        .get('/api/articles/1/comments')
+        .expect(200)
+        .then((response) => {
+        const { comments } = response.body;
+        expect(comments).toHaveLength(11)
+
+        comments.forEach((comment) => {
+            console.log(comment)
+        expect(typeof comment.comment_id).toBe("number")
+        expect(typeof comment.votes).toBe('number')
+        expect(typeof comment.created_at).toBe('string')
+        expect(typeof comment.author).toBe('string')
+        expect(typeof comment.body).toBe('string') 
+        expect(typeof comment.article_id).toBe('number')
+        })
+    })
+    })
+    test('GET:400 sends an appropriate status and error message when given an invalid id', () => {
+        return request(app)
+          .get('/api/articles/notarticle')
+          .expect(400)
+          .then((response) => {
+            expect(response.body.msg).toBe('Bad request');
+          });
+      });
+    test('GET:404 sends an appropriate status and error message when given a valid but non-existent id', () => {
+        return request(app)
+          .get('/api/articles/999')
+          .expect(404)
+          .then((response) => {
+            expect(response.body.msg).toBe("404: route not found");
+          });
+      });
+    
+      test('GET 404: sends an appropriate status and error message when given the correct article_id but wrong comment path', () => {
+        return request(app)
+        .get('/api/articles/1/nonsense')
+        .expect(404)
+        .then((response) => {
+            expect(response.body.msg).toBe("404: route not found")
+        })
+    })
+    
+})
