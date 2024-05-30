@@ -1,5 +1,5 @@
 const endpoints = require('../endpoints.json');
-const { selectTopics, selectArticles, selectArticleId, selectCommentsByArticleId, addComment, updateVotes, selectCommentId} = require('../models/get.model');
+const { selectTopics, selectArticles, selectArticleId, selectCommentsByArticleId, addComment, updateVotes, selectCommentId, selectUsers} = require('../models/get.model');
 
 exports.getEndpoints = (req, res, next) => {
     res.status(200).send({endpoints});
@@ -67,3 +67,10 @@ exports.getCommentId = (req, res, next) => {
 })
     .catch(next);
 } 
+
+exports.getUsers = (req, res, next) => {
+    selectUsers().then((users) => {
+     res.status(200).send({users})
+    }) 
+    .catch(next);
+};
