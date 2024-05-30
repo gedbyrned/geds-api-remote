@@ -361,5 +361,29 @@ describe('DELETE /api/comments/:comment_id', () => {
       });
 })
 
+describe('GET /api/users', () => {
+    test('GET:200 responds with an array of user objects with the correct properties', () => {
+        return request(app)
+            .get('/api/users')
+            .expect(200)
+            .then((response) => {
+                expect(response.body.users).toHaveLength(4)
+                response.body.users.forEach((user) => {
+                    expect(typeof user.username).toBe('string')
+                    expect(typeof user.name).toBe('string')
+                    expect(typeof user.avatar_url).toBe('string')
+                })
+            })
+    })
+    test('GET:404 route not found', () => {
+        return request(app)
+        .get('/api/nonsense')
+        .expect(404)
+        .then((response) => {
+            expect(response.body.msg).toBe("404: route not found")
+        })
+    })
+})
+
 
 
