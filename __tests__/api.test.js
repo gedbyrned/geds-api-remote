@@ -9,7 +9,6 @@ const commentData = require('../db/data/test-data/comments');
 const app = require('../app');
 const db = require('../db/connection');
 const e = require('express')
-const { TestWatcher } = require('jest');
 const endpointsJSON = require('../endpoints.json');
 const comments = require('../db/data/test-data/comments');
 
@@ -23,7 +22,7 @@ beforeEach(() => {
 })
 
 describe('GET /api/topics', () => {
-    test('200: responds with an array of objects, with the property keys of slug and description.', () => {
+    test('GET:200 responds with an array of objects, with the property keys of slug and description.', () => {
         return request(app)
         .get('/api/topics')
         .expect(200)
@@ -36,7 +35,7 @@ describe('GET /api/topics', () => {
         })
 
     })
-    test('404: route not found', () => {
+    test('GET:404 route not found', () => {
         return request(app)
         .get('/api/nonsense')
         .expect(404)
@@ -47,7 +46,7 @@ describe('GET /api/topics', () => {
 })
 
 describe('GET /api', () => {
-    test('200: responds with a JSON object with a description of available endpoints', () => {
+    test('GET:200 responds with a JSON object with a description of available endpoints', () => {
         return request(app)
         .get('/api')
         .expect(200)
@@ -59,7 +58,7 @@ describe('GET /api', () => {
 });
 
 describe('GET /api/articles/:article_id', () => {
-    test('200: responds with a single article object given its ID, with the correct properties', () => {
+    test('GET:200 responds with a single article object given its ID, with the correct properties', () => {
         return request(app)
         .get('/api/articles/1')
         .expect(200)
@@ -76,12 +75,13 @@ describe('GET /api/articles/:article_id', () => {
         })
     })
     test('GET:404 sends an appropriate status and error message when given a valid but non-existent id', () => {
+        const articleId = 999;
         return request(app)
-          .get('/api/articles/999')
+          .get(`/api/articles/${articleId}`)
           .expect(404)
           .then((response) => {
-            expect(response.body.msg).toBe("404: route not found");
-          });
+            expect(response.body.msg).toBe(`404: article number ${articleId} is not valid`);
+      });
       });
       test('GET:400 sends an appropriate status and error message when given an invalid id', () => {
         return request(app)
@@ -94,7 +94,7 @@ describe('GET /api/articles/:article_id', () => {
 })
 
 describe('GET /api/articles', () => {
-    test('200: responds with an array of article objects, listed by date in descending order, body property removed and a new comment_count property', () => {
+    test('GET:200 responds with an array of article objects, listed by date in descending order, body property removed and a new comment_count property', () => {
         return request(app)
         .get('/api/articles')
         .expect(200)
@@ -106,17 +106,16 @@ describe('GET /api/articles', () => {
             expect(typeof article.title).toBe('string')
             expect(typeof article.topic).toBe('string')
             expect(typeof article.created_at).toBe('string') 
-            // is string of a date
             expect(typeof article.votes).toBe('number')
             expect(typeof article.article_img_url).toBe('string')
             expect(typeof article.comment_count).toBe('string') 
-            // is string of a number
-        })    
+        })
+        expect(response.body.articles).toBeSortedBy('created_at', {descending: true});    
 
         })
 })
 
-    test('404: route not found', () => {
+    test('GET:404 route not found', () => {
         return request(app)
         .get('/api/nonsense')
         .expect(404)
@@ -127,7 +126,7 @@ describe('GET /api/articles', () => {
 }); 
 
 describe('GET /api/articles/:article_id/comments', () => {
-    test('responds with an array of comments for a given article ID with the correct properties, with the most recent comment first', () => {
+    test('GET:200 responds with an array of comments for a given article ID with the correct properties, with the most recent comment first', () => {
         return request(app)
         .get('/api/articles/1/comments')
         .expect(200)
@@ -136,7 +135,6 @@ describe('GET /api/articles/:article_id/comments', () => {
         expect(comments).toHaveLength(11)
 
         comments.forEach((comment) => {
-            console.log(comment)
         expect(typeof comment.comment_id).toBe("number")
         expect(typeof comment.votes).toBe('number')
         expect(typeof comment.created_at).toBe('string')
@@ -145,6 +143,15 @@ describe('GET /api/articles/:article_id/comments', () => {
         expect(typeof comment.article_id).toBe('number')
         })
     })
+})
+    test('GET:200 when given a valid article_id but no comment is attached to it', () => {
+        const articleIdWithoutComments = 2;
+        return request(app)
+        .get(`/api/articles/${articleIdWithoutComments}/comments`)
+        .expect(200)
+        .then((response) => {
+            expect(response.body.comments).toEqual([]);
+        })
     })
     test('GET:400 sends an appropriate status and error message when given an invalid id', () => {
         return request(app)
@@ -155,15 +162,17 @@ describe('GET /api/articles/:article_id/comments', () => {
           });
       });
     test('GET:404 sends an appropriate status and error message when given a valid but non-existent id', () => {
+        const articleId = 999;
         return request(app)
-          .get('/api/articles/999')
+          .get(`/api/articles/${articleId}`)
           .expect(404)
           .then((response) => {
-            expect(response.body.msg).toBe("404: route not found");
+            expect(response.body.msg).toBe(`404: article number ${articleId} is not valid`);
           });
       });
     
-      test('GET 404: sends an appropriate status and error message when given the correct article_id but wrong comment path', () => {
+      test('GET:404 sends an appropriate status and error message when given the correct article_id but wrong comment path', () => {
+    
         return request(app)
         .get('/api/articles/1/nonsense')
         .expect(404)
@@ -171,5 +180,85 @@ describe('GET /api/articles/:article_id/comments', () => {
             expect(response.body.msg).toBe("404: route not found")
         })
     })
+
+})
+
+
+describe('POST /api/articles/:article_id/comments', () => {
+    test('POST:200 adds a comment to an article and responds with the posted comment', () => {
+        const newComment = {
+            username: "butter_bridge",
+            body: "test comment"
+        }
+        return request(app)
+        .post(`/api/articles/3/comments`)
+        .send(newComment)
+        .expect(201)
+        .then((response) => {
+            expect(Object.keys(response.body.comment)).toHaveLength(6)
+            expect(response.body.comment).toHaveProperty('comment_id');
+            expect(response.body.comment).toHaveProperty('body', 'test comment');
+            expect(response.body.comment).toHaveProperty('article_id', 3);
+            expect(response.body.comment).toHaveProperty('author', 'butter_bridge');
+            expect(response.body.comment).toHaveProperty('votes', 0);
+            expect(response.body.comment).toHaveProperty('created_at');
+
+        })
+
+    })
+    test('POST:404 sends an appropriate status and error message when given a valid but non-existent id', () => {
+        const articleId = 999;
+        const newComment = {
+            username: "butter_bridge",
+            body: "test comment"
+        }
+        return request(app)
+          .post(`/api/articles/${articleId}/comments`)
+          .send(newComment)
+          .expect(404)
+          .then((response) => {
+            expect(response.body.msg).toBe(`404: article number ${articleId} is not valid`);
+          });
+      });
+      test('POST:404 sends an appropriate status and error message when given the correct article_id but wrong comment path', () => {
+        const newComment = {
+            username: "butter_bridge",
+            body: "test comment"
+        }
+        return request(app)
+        .post('/api/articles/3/nonsense')
+        .send(newComment)
+        .expect(404)
+        .then((response) => {
+            expect(response.body.msg).toBe("404: route not found")
+        })
+    })
+    test('POST:400 sends an appropriate status and error message when given an invalid id', () => {
+        const newComment = {
+            username: "butter_bridge",
+            body: "test comment"
+        }
+        return request(app)
+          .post('/api/articles/notarticle/comments')
+          .send(newComment)
+          .expect(400)
+          .then((response) => {
+            expect(response.body.msg).toBe('Bad request');
+          });
+      });
+      test('POST:400 sends an appropriate status and error message when given a valid but not existent author', () => {
+        const newComment = {
+            username: "GerardByrne",
+            body: "test comment"
+        }
+        return request(app)
+          .post('/api/articles/3/comments')
+          .send(newComment)
+          .expect(400)
+          .then((response) => {
+            expect(response.body.msg).toBe(`400:Username ${newComment.username} is invalid`);
+          });
+      });
+
     
 })
