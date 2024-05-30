@@ -131,10 +131,9 @@ describe('GET /api/articles/:article_id/comments', () => {
         .get('/api/articles/1/comments')
         .expect(200)
         .then((response) => {
-        const { comments } = response.body;
-        expect(comments).toHaveLength(11)
+        expect(response.body.comments).toHaveLength(11)
 
-        comments.forEach((comment) => {
+        response.body.comments.forEach((comment) => {
         expect(typeof comment.comment_id).toBe("number")
         expect(typeof comment.votes).toBe('number')
         expect(typeof comment.created_at).toBe('string')
@@ -142,6 +141,7 @@ describe('GET /api/articles/:article_id/comments', () => {
         expect(typeof comment.body).toBe('string') 
         expect(typeof comment.article_id).toBe('number')
         })
+        expect(response.body.comments).toBeSortedBy('created_at', {descending: true});    
     })
 })
     test('GET:200 when given a valid article_id but no comment is attached to it', () => {
@@ -262,3 +262,76 @@ describe('POST /api/articles/:article_id/comments', () => {
 
     
 })
+
+describe('PATCH /api/articles/:article_id', () => {
+    test('PATCH:200 for a specified article id, creates an updated vote count based on a passed increment value', () => {
+        const articleId = 3;
+        const voteInc = 100;
+        const patchObj = { inc_votes: voteInc};
+
+        return request(app)
+        .get(`/api/articles/${articleId}`)
+        .then((response) => {
+            const originalVotes = response.body.article.votes;
+            return request(app)
+            .patch(`/api/articles/${articleId}`)
+            .send(patchObj)
+            .expect(202)
+            .then((response) => {
+                const articleUpdate = response.body.article;
+                expect(Object.keys(articleUpdate)).toHaveLength(8);
+
+            expect(articleUpdate.votes).toBe(originalVotes + voteInc);
+            
+            expect(articleUpdate).toHaveProperty("article_id");
+            expect(articleUpdate).toHaveProperty("title");
+            expect(articleUpdate).toHaveProperty("topic");
+            expect(articleUpdate).toHaveProperty("author");
+            expect(articleUpdate).toHaveProperty("body");
+            expect(articleUpdate).toHaveProperty("created_at");
+            expect(articleUpdate).toHaveProperty("votes");
+            expect(articleUpdate).toHaveProperty("article_img_url");
+            
+        })
+    })
+})
+    test('PATCH:404 sends an appropriate status and error message when given a valid but non-existent id', () => {
+        const articleId = 9999;
+        const voteInc = 100;
+        const patchObj = { inc_votes: voteInc};
+        
+        return request(app)
+            .patch(`/api/articles/${articleId}`)
+            .send(patchObj)
+            .expect(404)
+            .then((response) => {
+            expect(response.body.msg).toBe(`404: article number ${articleId} is not valid`);
+            })
+    })
+    test('PATCH:400 sends an appropriate status and error message when given an invalid id', () => {
+        const articleId = "jiggly puff";
+        const voteInc = 100;
+        const patchObj = { inc_votes: voteInc};
+        return request(app)
+          .patch(`/api/articles/${articleId}`)
+          .send(patchObj)
+          .expect(400)
+          .then((response) => {
+            expect(response.body.msg).toBe('Bad request');
+          });
+      });
+      test('PATCH:400 sends an appropriate status and error message when votes increment value is not a number', () => {
+        const articleId = 3;
+        const voteInc = "watch me whip";
+        const patchObj = { inc_votes: voteInc};
+        return request(app)
+          .patch(`/api/articles/${articleId}`)
+          .send(patchObj)
+          .expect(400)
+          .then((response) => {
+            expect(response.body.msg).toBe('Bad request');
+          });
+      });
+})
+
+
