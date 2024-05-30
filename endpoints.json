@@ -60,5 +60,71 @@
         }
       ]
     }
+  },
+  "GET /api/articles/:article_id/comment" :{
+    "description": "serves an array of comments for a chosen article id, with the newest comment first",
+    "queries": ["order"],
+    "exampleResponse": {
+      "comments": [
+        {
+          "comment_id": 3,
+          "votes": 100,
+          "created_at": "2020-03-01T01:13:00.000Z",
+          "author": "icellusedkars",
+          "body": "Replacing the quiet elegance of the dark suit and tie with the casual indifference of these muted earth tones is a form of fashion suicide, but, uh, call me crazy — onyou it works.'",
+          "article_id": 1
+        }
+      ]
+    }
+  },
+  "POST /api/articles/:article_id/comments" :{
+    "description": "adds a comment to an article and responds with the posted comment",
+    "queries": ["order"],
+    "exampleResponse": {
+      "comments": [
+        {
+          "comment_id": 19,
+          "body": "test comment",
+          "article_id": 3,
+          "author": "butter_bridge",
+          "votes": 0,
+          "created_at": "2024-05-30T12:29:38.707Z"
+        }
+      ]
+    }
+  },
+  "PATCH /api/articles/:article_id" :{
+    "description": "for a specified article id, creates an updated vote count based on a passed increment value",
+    "queries": [],
+    "exampleResponse": {
+      "comments": [
+        {
+          "article_id": 3,
+          "title": "Eight pug gifs that remind me of mitch",
+          "topic": "mitch",
+          "author": "icellusedkars",
+          "body": "some gifs",
+          "created_at": "2020-11-03T09:12:00.000Z",
+          "votes": 100,
+          "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+        }
+      ]
+    }
+  },
+  "DELETE /api/comments/:comment_id" :{
+    "description": "deletes comment stated in the comment ID", 
+    "queries": ["delete"],
+    "exampleResponse": {
+      "comments": [
+        {}
+      ]
+    }
+  },
+  "GET /api/topics": {
+    "description": "serves an array of all users",
+    "queries": [],
+    "exampleResponse": {
+      "users": [{ "username": "lurker", "avatar_url": "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png" }]
+    }
   }
 }

@@ -7,9 +7,3 @@ You are now connected to database "nc_news_test" as user "gerardbyrne".
  lurker        | do_nothing | https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png
 (4 rows)
 
- comment_id |     body     | article_id |    author     | votes |         created_at         
-------------+--------------+------------+---------------+-------+----------------------------
-         19 | test comment |          3 | butter_bridge |     0 | 2024-05-30 12:25:21.620678
-(1 row)
-
-INSERT 0 1

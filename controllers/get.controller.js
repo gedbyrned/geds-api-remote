@@ -1,5 +1,5 @@
 const endpoints = require('../endpoints.json');
-const { selectTopics, selectArticles, selectArticleId, selectCommentsById, addComment } = require('../models/get.model');
+const { selectTopics, selectArticles, selectArticleId, selectCommentsByArticleId, addComment, updateVotes} = require('../models/get.model');
 
 exports.getEndpoints = (req, res, next) => {
     res.status(200).send({endpoints});
@@ -26,9 +26,9 @@ exports.getArticles = (req, res, next) => {
     .catch(next);
 };
 
-exports.getCommentsById = (req, res, next) => {
+exports.getCommentsByArticleId = (req, res, next) => {
     const { article_id } = req.params;
-    selectCommentsById(article_id).then((comments) => {
+    selectCommentsByArticleId(article_id).then((comments) => {
      res.status(200).send({ comments })
     }) 
     .catch(next);
@@ -46,3 +46,17 @@ exports.postComment = (req, res, next) => {
     })
     .catch(next);
 }
+
+exports.patchVotes = (req, res, next) => {
+    const { article_id } = req.params;
+    const {inc_votes} = req.body;
+    Promise.all([
+        selectArticleId(article_id),
+        updateVotes(article_id, inc_votes)
+    ])
+    .then(([articleId, article ]) => {
+        res.status(202).send({articleId, article});
+    })
+    .catch(next);
+}
+

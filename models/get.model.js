@@ -31,11 +31,11 @@ exports.selectArticles = () => {
     })
 };
 
-exports.selectCommentsById = () => {
+exports.selectCommentsByArticleId = () => {
     return db.query(`SELECT * FROM comments;`)
 }
 
-exports.selectCommentsById = (article_id) => {
+exports.selectCommentsByArticleId = (article_id) => {
     return db.query(`SELECT comment_id, votes, created_at, author, body, article_id FROM comments
     WHERE article_id = $1 
     ORDER BY created_at DESC`,
@@ -66,3 +66,17 @@ exports.addComment = (article_id, username, body) => {
         });
     });
 }  
+
+exports.updateVotes = (article_id, inc_votes) => {
+    return db.query
+    (`UPDATE articles
+     SET votes = votes + $2
+     WHERE article_id = $1
+     RETURNING *;`, 
+     [article_id, inc_votes])
+    .then((result) => {
+        return result.rows[0]
+    })
+
+}
+
