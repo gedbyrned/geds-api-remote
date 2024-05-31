@@ -425,3 +425,34 @@ describe('GET /api/articles (topic query)', () => {
         })
     })
 })
+
+describe('GET /api/articles/:article_id (comment_count)', () => {
+    test('GET:200 takes a given article id and responds with all the comments for this article', () => {
+        const articleId = 3;
+        return request(app)
+        .get(`/api/articles/${articleId}`)
+        .expect(200)
+        .then((response) => {
+        expect(response.body.article.article_id).toBe(3)
+        expect(Object.keys(response.body.article)).toHaveLength(9)
+        })
+    
+})
+test('GET:404 sends an appropriate status and error message when given a valid but non-existent id', () => {
+    const articleId = 999;
+    return request(app)
+      .get(`/api/articles/${articleId}`)
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe(`404: article number ${articleId} is not valid`);
+  });
+  });
+  test('GET:400 sends an appropriate status and error message when given an invalid id', () => {
+    return request(app)
+      .get('/api/articles/notarticle')
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe('Bad request');
+      });
+  });
+})
