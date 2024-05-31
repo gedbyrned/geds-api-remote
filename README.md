@@ -9,4 +9,17 @@ If you wish to run the project locally, after cloning the project, ensure that:
 
 --- 
 
+Welcome to my project!
+
+A link to the hosted version.
+A summary of what the project is.
+Clear instructions of how to clone, install dependencies, seed local database, and run tests.
+Information about how to create the two .env files.
+The minimum versions of Node.js, and Postgres needed to run the project.
+
+
+
+
+---
+
 This portfolio project was created as part of a Digital Skills Bootcamp in Software Engineering provided by [Northcoders](https://northcoders.com/)
