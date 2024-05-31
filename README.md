@@ -4,11 +4,9 @@
 
 Welcome to my project!
 
-A link to the hosted version. HERE 
+[A link to the hosted version. HERE ](https://geds-api-remote-2.onrender.com)
 
 This project is an api api build for the purpose of accessing application data programatically, to mimic the building of a real world backend service (such as Reddit) which should provide this information to the front end architecture.
-
-Clear instructions of how to clone, install dependencies, seed local database, and run tests.
 
 To clone this project:
 
@@ -27,6 +25,7 @@ Install the following dependencies in the terminal:
 
 To seed the local database:
 
+---
 
 To run tests:
 
@@ -39,10 +38,7 @@ You will also have to creat to .env files:
 3. Add the two new .env files to the .gitignore file. 
 
 The minimum version of Node.js needed to run this project is >=6.0.0. 
-The minimumum version of Postgres need to run the project
-
-
-
+The minimumum version of Postgres need to run the project is >=4
 
 ---
 
