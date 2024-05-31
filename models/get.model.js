@@ -20,15 +20,29 @@ exports.selectArticleId = (article_id) => {
     })  
 }
 
-exports.selectArticles = () => {
-    return db.query(`SELECT articles.author, articles.title, articles.article_id,  articles.topic, articles.created_at, articles.votes, articles.article_img_url,
-    (SELECT COUNT(*) FROM comments comments WHERE comments.article_id = articles.article_id)
-    AS comment_count
-    FROM articles articles
-    ORDER BY articles.created_at DESC;`)
+exports.selectArticles = (topic) => {
+    const queryArray = [];
+    let queryStr = `SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url,
+    (SELECT COUNT(*) FROM comments WHERE comments.article_id = articles.article_id) AS comment_count
+    FROM articles`;
+
+    if (topic) {
+        queryStr += ` WHERE articles.topic = $1`;
+        queryArray.push(topic);
+    }
+
+    queryStr += ` ORDER BY articles.created_at DESC;`;
+
+    return db.query(queryStr, queryArray)
     .then((result) => {
-        return result.rows
-    })
+    if (result.rows.length === 0) {
+            return Promise.reject({ 
+            status: 404, 
+            msg: `Topic of ${topic} is invalid`});
+     }
+    
+          return result.rows;
+    });
 };
 
 exports.selectCommentsByArticleId = () => {
@@ -80,7 +94,7 @@ exports.updateVotes = (article_id, inc_votes) => {
 
 }
 
-exports.selectCommentId = (comment_id) => {
+exports.selectCommentById = (comment_id) => {
     return db.query(
         `DELETE FROM comments 
          WHERE comment_id = $1 

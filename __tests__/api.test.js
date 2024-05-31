@@ -385,5 +385,43 @@ describe('GET /api/users', () => {
     })
 })
 
-
-
+describe('GET /api/articles (topic query)', () => {
+    test('GET:200 responds with articles filtered by a topic query', () => {
+        const topic = 'cats';
+        return request(app)
+            .get(`/api/articles?topic=${topic}`)
+            .expect(200)
+            .then((response) => {
+            response.body.articles.forEach(article => {
+                    expect(Object.keys(article)).toHaveLength(8);
+                    expect(article.topic).toBe(topic);
+                });
+                })
+    })
+    test('GET:200 responds with an array of all article objects when query is omitted', () => {
+        return request(app)
+        .get('/api/articles')
+        .expect(200)
+        .then((response) => {
+           expect(response.body.articles).toHaveLength(13)
+           expect(response.body.articles).toBeInstanceOf(Array);
+        })
+    })
+    test('GET:404 responds with sends an appropriate status and error message when topic is not valid', () => {
+        const topic = "Gerard Byrne"
+        return request(app)
+        .get(`/api/articles?topic=${topic}`)
+        .expect(404)
+        .then((response) => {
+            expect(response.body.msg).toBe(`Topic of ${topic} is invalid`)
+         })
+    })
+    test('GET:404 route not found when given an invalid path', () => {
+        return request(app)
+        .get('/api/nonsense')
+        .expect(404)
+        .then((response) => {
+            expect(response.body.msg).toBe("404: route not found")
+        })
+    })
+})
