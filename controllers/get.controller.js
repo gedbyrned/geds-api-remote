@@ -1,5 +1,5 @@
 const endpoints = require('../endpoints.json');
-const { selectTopics, selectArticles, selectArticleId, selectCommentsByArticleId, addComment, updateVotes, selectCommentId, selectUsers} = require('../models/get.model');
+const { selectTopics, selectArticles, selectArticleId, selectCommentsByArticleId, addComment, updateVotes, selectCommentById, selectUsers} = require('../models/get.model');
 
 exports.getEndpoints = (req, res, next) => {
     res.status(200).send({endpoints});
@@ -20,9 +20,11 @@ exports.getArticleId = (req, res, next) => {
 };
 
 exports.getArticles = (req, res, next) => {
-    selectArticles().then((articles) => {
-     res.status(200).send({articles})
-    }) 
+    const { topic } = req.query;
+    selectArticles(topic)
+    .then((articles) => {
+    res.status(200).send({articles});
+        })
     .catch(next);
 };
 
@@ -60,9 +62,9 @@ exports.patchVotes = (req, res, next) => {
     .catch(next);
 }
 
-exports.getCommentId = (req, res, next) => {
+exports.deleteCommentById = (req, res, next) => {
     const { comment_id } = req.params;
-    selectCommentId(comment_id).then((comment) => {
+    selectCommentById(comment_id).then((comment) => {
         res.status(204).send({comment})
 })
     .catch(next);
