@@ -29,9 +29,11 @@ exports.selectArticleId = (article_id) => {
 
 exports.selectArticles = (topic) => {
     const queryArray = [];
-    let queryStr = `SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url,
-    (SELECT COUNT(*) FROM comments WHERE comments.article_id = articles.article_id) AS comment_count
-    FROM articles`;
+    let queryStr = `
+        SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url,
+        (SELECT COUNT(*) FROM comments WHERE comments.article_id = articles.article_id) AS comment_count
+        FROM articles
+    `;
 
     if (topic) {
         queryStr += ` WHERE articles.topic = $1`;
@@ -41,16 +43,24 @@ exports.selectArticles = (topic) => {
     queryStr += ` ORDER BY articles.created_at DESC;`;
 
     return db.query(queryStr, queryArray)
-    .then((result) => {
-    if (result.rows.length === 0) {
-            return Promise.reject({ 
-            status: 404, 
-            msg: `Topic of ${topic} is invalid`});
-     }
-    
-          return result.rows;
-    });
+     .then((result) => {
+    if (result.rows.length === 0 && topic) {
+        return db.query(`SELECT * FROM topics WHERE slug = $1`, [topic])
+        .then((topicResult) => {
+            if (topicResult.rows.length === 0) {
+            return Promise.reject({
+                status: 404,
+                msg: `Topic of ${topic} is invalid`
+                });
+             };
+            return [];
+        });
+     };
+     return result.rows;
+ });
 };
+
+
 
 exports.selectCommentsByArticleId = () => {
     return db.query(`SELECT * FROM comments;`)

@@ -407,6 +407,14 @@ describe('GET /api/articles (topic query)', () => {
            expect(response.body.articles).toBeInstanceOf(Array);
         })
     })
+    test('GET:200 with valid topic query but no articles responds with an empty array', () => {
+        return request(app)
+        .get(`/api/articles?topic=paper`)
+        .expect(200)
+        .then((response) => {
+            expect(response.body.articles).toHaveLength(0);
+        });
+    })
     test('GET:404 responds with sends an appropriate status and error message when topic is not valid', () => {
         const topic = "Gerard Byrne"
         return request(app)
