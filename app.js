@@ -13,10 +13,10 @@ app.get('/api/topics', getTopics);
 app.get('/api/articles/:article_id', getArticleId);
 app.get('/api/articles', getArticles);
 app.get('/api/articles/:article_id/comments', getCommentsByArticleId);
-app.get('/api/comments/:comment_id', deleteCommentById);
 app.get('/api/users', getUsers);
 
 
+app.delete('/api/comments/:comment_id', deleteCommentById);
 app.post('/api/articles/:article_id/comments', postComment);
 app.patch('/api/articles/:article_id', patchVotes);
 

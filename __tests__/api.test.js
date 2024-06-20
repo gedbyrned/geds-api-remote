@@ -338,13 +338,13 @@ describe('DELETE /api/comments/:comment_id', () => {
     test('DELETE:200 deletes comment stated in the comment ID', () => {
         const commentId = 3;
         return request(app)
-        .get(`/api/comments/${commentId}`)
+        .delete(`/api/comments/${commentId}`)
         .expect(204)
     })
     test('DELETE:404 sends an appropriate status and error message when given a valid but non-existent id', () => {
         const commentId = 9292;
         return request(app)
-        .get(`/api/comments/${commentId}`)
+        .delete(`/api/comments/${commentId}`)
           .expect(404)
           .then((response) => {
             expect(response.body.msg).toBe(`404: comment id number ${commentId} is not valid`);
@@ -353,7 +353,7 @@ describe('DELETE /api/comments/:comment_id', () => {
       test('DELETE:400 sends an appropriate status and error message when given an invalid comment id', () => {
         const commentId = "Pete's Jazz";
         return request(app)
-        .get(`/api/comments/${commentId}`)
+        .delete(`/api/comments/${commentId}`)
           .expect(400)
           .then((response) => {
             expect(response.body.msg).toBe('Bad request');
