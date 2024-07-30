@@ -27,7 +27,18 @@ exports.selectArticleId = (article_id) => {
     })  
 }
 
-exports.selectArticles = (topic) => {
+exports.selectArticles = (topic, sort_by = 'created_at', order = 'desc') => {
+    const validSortByFields = ['created_at', 'comment_count', 'votes'];
+    const validOrderValues = ['asc', 'desc'];
+
+    if (!validSortByFields.includes(sort_by)) {
+        sort_by = 'created_at';
+    }
+
+    if (!validOrderValues.includes(order)) {
+        order = 'desc';
+    }
+
     const queryArray = [];
     let queryStr = `
         SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url,
@@ -40,24 +51,24 @@ exports.selectArticles = (topic) => {
         queryArray.push(topic);
     }
 
-    queryStr += ` ORDER BY articles.created_at DESC;`;
+    queryStr += ` ORDER BY ${sort_by} ${order};`;
 
     return db.query(queryStr, queryArray)
-     .then((result) => {
-    if (result.rows.length === 0 && topic) {
-        return db.query(`SELECT * FROM topics WHERE slug = $1`, [topic])
-        .then((topicResult) => {
-            if (topicResult.rows.length === 0) {
-            return Promise.reject({
-                status: 404,
-                msg: `Topic of ${topic} is invalid`
-                });
-             };
-            return [];
+        .then((result) => {
+            if (result.rows.length === 0 && topic) {
+                return db.query(`SELECT * FROM topics WHERE slug = $1`, [topic])
+                    .then((topicResult) => {
+                        if (topicResult.rows.length === 0) {
+                            return Promise.reject({
+                                status: 404,
+                                msg: `Topic of ${topic} is invalid`
+                            });
+                        };
+                        return [];
+                    });
+            };
+            return result.rows;
         });
-     };
-     return result.rows;
- });
 };
 
 
