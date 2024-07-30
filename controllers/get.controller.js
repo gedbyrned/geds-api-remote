@@ -20,13 +20,14 @@ exports.getArticleId = (req, res, next) => {
 };
 
 exports.getArticles = (req, res, next) => {
-    const { topic } = req.query;
-    selectArticles(topic)
-    .then((articles) => {
-    res.status(200).send({articles});
+    const { topic, sort_by, order } = req.query;
+    selectArticles(topic, sort_by, order)
+        .then((articles) => {
+            res.status(200).send({ articles });
         })
-    .catch(next);
+        .catch(next);
 };
+
 
 exports.getCommentsByArticleId = (req, res, next) => {
     const { article_id } = req.params;
